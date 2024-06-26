@@ -1,16 +1,18 @@
 const express = require("express");
 const dotenv = require("dotenv");
-
-dotenv.config();
+const cors = require("cors");
 
 const app = express();
 const port = process.env.PORT | 5000;
+
+dotenv.config();
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("<h2>Hello World!</h2>");
 });
 
-app.get("/products", (req, res) => {
+app.get("/api/products", (req, res) => {
   const PRODUCTS = [
     {
       id: 1,
@@ -29,7 +31,7 @@ app.get("/products", (req, res) => {
     },
   ];
 
-  res.json(PRODUCTS);
+  res.send(PRODUCTS);
 });
 
 app.listen(port, () => {
