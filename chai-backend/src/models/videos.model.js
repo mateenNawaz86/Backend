@@ -35,7 +35,11 @@ const videosSchema = new mongoose.Schema(
     },
     isPublished: {
       type: Boolean,
-      required: true,
+      default: true,
+    },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User ",
     },
   },
   { timestamps: true }

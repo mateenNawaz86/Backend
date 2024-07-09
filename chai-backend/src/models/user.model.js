@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
@@ -44,5 +45,14 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// we don't use arrow function bcoz in this formate arrow fn didn't get a this keyword so we need a this keyword for userSchema ref
+userSchema.pre("save", async function (next) {
+  // here we create a password only when password field is modified
+  if (!this.isModified("password")) return next();
+
+  this.password = bcrypt.hash(this.password, 10); // here 10 is round digit
+  next();
+});
 
 export const User = mongoose.model("User", userSchema);
