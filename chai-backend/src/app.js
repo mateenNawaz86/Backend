@@ -23,4 +23,10 @@ app.use(express.static("public"));
 // In this config we can set the secure cookies in user browser
 app.use(cookieParser());
 
+// import routes here
+import userRouter from "./routes/user.router.js";
+
+// routes declaration
+app.use("/api/users", userRouter);
+
 export { app };
