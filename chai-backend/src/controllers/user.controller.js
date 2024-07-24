@@ -15,7 +15,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All field are required!");
   }
   // check if user already exists: username or email
-  const existedUser = User.findOne({
+  const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
 
@@ -36,7 +36,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const coverImg = await uploadOnCloudinary(coverImgLocalPath);
 
   if (!avatar) {
-    throw new ApiError(400, "Avatar image must be required!");
+    throw new ApiError(400, "Failed to upload avatar image!");
   }
 
   // create user object - create entry in database

@@ -1,5 +1,8 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs"; // file system of nodejs
+import dotenv from "dotenv";
+
+dotenv.config({ path: ".env" });
 
 // Configuration
 cloudinary.config({
@@ -15,7 +18,7 @@ const uploadOnCloudinary = async (filePath) => {
 
     // upload the file on cloudinary
     const response = await cloudinary.uploader.upload(filePath, {
-      resource_type: "auto",
+      resource_type: "image",
     });
 
     // IF file has been uploaded successfully
