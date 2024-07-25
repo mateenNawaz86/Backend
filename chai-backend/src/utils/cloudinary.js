@@ -21,8 +21,8 @@ const uploadOnCloudinary = async (filePath) => {
       resource_type: "image",
     });
 
-    // IF file has been uploaded successfully
-    console.log(`File upload on cloudinary successfully`, response.url);
+
+    fs.unlinkSync(filePath); // remove file from locally if its uploaded successfully
     return response;
   } catch (error) {
     // IF uploaded file operation failed then remove the locally saved file
