@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password must be atleast 6 characters long!"],
       trim: true,
     },
-    refreshToken: {
+    refereshToken: {
       type: String,
     },
   },
@@ -77,7 +77,7 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 
-userSchema.methods.generateRefreshToken = function () {
+userSchema.methods.generateRefereshToken = function () {
   jwt.sign(
     {
       _id: this._id,
