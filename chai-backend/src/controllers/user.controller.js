@@ -178,6 +178,26 @@ export const loginUser = asyncHandler(async (req, res) => {
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
-  // delete cookies
   // delete refereshToken from DB
+  await User.findByIdAndUpdate(
+    req.user._id, // get user from the requst which we gonna be added using middleware
+    {
+      $set: { refereshToken: undefined }, // set refereshToken to undefined means empty
+    },
+    {
+      new: true, // store value in DB with new user object where refereshToken is undefined
+    }
+  );
+
+  // delete cookies
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", accessToken, options)
+    .clearCookie("refereshToken", refereshToken, options)
+    .json(new ApiResponse(200, {}, "User logout successfully!"));
 });
