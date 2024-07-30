@@ -28,6 +28,7 @@ export const generateAccessAndRefereshToken = async (userId) => {
     // return accessToken & refereshToken
     return { accessToken, refereshToken };
   } catch (error) {
+    console.error("Error generating tokens: ", error);
     throw new ApiError(
       500,
       "Something went wrong while generating access & referesh token!"
@@ -120,9 +121,10 @@ export const loginUser = asyncHandler(async (req, res) => {
   // Get values from the frontend/req.body
   const { username, email, password } = req.body;
 
+
   // check the username or email is coming in request body or not
-  if (!username || !email) {
-    throw new ApiError(400, "Username or email is required!");
+  if (!(username || email)) {
+    throw new ApiError(400, "username or email is required!");
   }
 
   // find the user from database via email or username
