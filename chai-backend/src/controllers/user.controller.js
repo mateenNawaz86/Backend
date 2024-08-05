@@ -121,7 +121,6 @@ export const loginUser = asyncHandler(async (req, res) => {
   // Get values from the frontend/req.body
   const { username, email, password } = req.body;
 
-
   // check the username or email is coming in request body or not
   if (!(username || email)) {
     throw new ApiError(400, "username or email is required!");
@@ -199,7 +198,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie("accessToken", accessToken, options)
-    .clearCookie("refereshToken", refereshToken, options)
+    .clearCookie("accessToken", options)
+    .clearCookie("refereshToken", options)
     .json(new ApiResponse(200, {}, "User logout successfully!"));
 });

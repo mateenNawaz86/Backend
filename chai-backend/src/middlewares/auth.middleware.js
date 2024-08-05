@@ -11,8 +11,9 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
       // this is just for the mobile app bcoz with didn't set cookies in mobile app
       req.header("Authorization")?.replace("Bearer ", "");
 
+
     // IF token didn't get
-    if (token) {
+    if (!token) {
       throw new ApiError(401, "Unauthorized request!");
     }
 
@@ -21,7 +22,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 
     // check the user with this token from database
     const user = await User.findById(decodedToken?._id).select(
-      "accessToken -refereshToken"
+      "-accessToken -refereshToken"
     );
 
     // IF user not exist
