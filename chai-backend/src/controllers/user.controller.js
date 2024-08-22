@@ -3,6 +3,12 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { User } from "../models/user.model.js";
+import jwt from "jsonwebtoken";
+
+const options = {
+  httpOnly: true,
+  secure: true,
+};
 
 // method for generating tokens
 export const generateAccessAndRefereshToken = async (userId) => {
@@ -154,12 +160,6 @@ export const loginUser = asyncHandler(async (req, res) => {
     "-password -refereshToken"
   );
 
-  // cookies only modified via server
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
-
   // send cookies
   return res
     .status(200)
@@ -190,15 +190,53 @@ export const logoutUser = asyncHandler(async (req, res) => {
     }
   );
 
-  // delete cookies
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
-
   return res
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refereshToken", options)
     .json(new ApiResponse(200, {}, "User logout successfully!"));
+});
+
+export const refereshAccessToken = asyncHandler(async (req, res) => {
+  const incomingRefereshToken =
+    req.cookies.refereshToken || req.body.refereshToken;
+
+  if (!incomingRefereshToken) {
+    throw new ApiError(401, "Unauthorized request!");
+  }
+
+  try {
+    // verify incoming token with already saved token
+    const decodedToken = jwt.verify(
+      incomingRefereshToken,
+      process.env.REFERESH_TOKEN_SCREACT
+    );
+
+    const user = await User.findById(decodedToken?._id);
+
+    // if user not exist
+    if (!user) throw new ApiError(401, "Invailed referesh token!");
+
+    // check the incoming token with already saved token
+    if (incomingRefereshToken !== user?.refereshToken) {
+      throw new ApiError(401, "Referesh token is expired or used!");
+    }
+
+    const { accessToken, newRefereshToken } =
+      await generateAccessAndRefereshToken(user?._id);
+
+    return res
+      .status(200)
+      .clearCookie("accessToken", options, accessToken)
+      .clearCookie("refereshToken", options, newRefereshToken)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken, refereshToken: newRefereshToken },
+          "Access token refereshed successfully!"
+        )
+      );
+  } catch (error) {
+    throw new ApiError(401, error?.message);
+  }
 });

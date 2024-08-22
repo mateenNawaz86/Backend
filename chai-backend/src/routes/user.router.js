@@ -28,5 +28,6 @@ router.route("/login").post(loginUser);
 
 // secured routes
 router.route("/logout").post(verifyJWT, logoutUser);
+router.route("/referesh-token").post(refereshAccessToken);
 
 export default router;
