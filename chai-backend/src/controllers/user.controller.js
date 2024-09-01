@@ -240,3 +240,31 @@ export const refereshAccessToken = asyncHandler(async (req, res) => {
     throw new ApiError(401, error?.message);
   }
 });
+
+export const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  // get the user id from request and search it to database
+  const user = await User.findById(req?.user?._id);
+
+  // match the current password to old one
+  const isCorrectPassword = await user.isPasswordCorrect(oldPassword);
+
+  if (!isCorrectPassword) throw new ApiError(400, "Invalid old password");
+
+  // set new password to current password
+  user.password = newPassword;
+
+  // save user into base with the updated data
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password change successfully!"));
+});
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(200, req?.user, "current user fetching successfly");
+});
