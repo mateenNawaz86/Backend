@@ -389,10 +389,10 @@ export const getUserChannelProfile = asyncHandler(async (req, res) => {
     // count the subsribed to pipeline
     {
       $lookup: {
-        from:"subscriptions",
-        localField:"_id",
-        foreignField:"subscriber",
-        as:"subscribers"
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribers"
       }
     },
 
@@ -404,13 +404,13 @@ export const getUserChannelProfile = asyncHandler(async (req, res) => {
           $size: "$subscribers"
         },
         channelsSubscribedToCount: {
-          $size:"$subscribers"
+          $size: "$subscribers"
         },
         isSubscribed: {
-          $cond:{
-            if:{$in: [req.user?._id, "$subscribers.subscriber"]},
-            then:true,
-            else:false
+          $cond: {
+            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+            then: true,
+            else: false
           }
         }
       }
@@ -420,25 +420,70 @@ export const getUserChannelProfile = asyncHandler(async (req, res) => {
     // return response pipeline
     {
       $project: {
-        fullName:1,
-        username:1,
-        email:1,
-        avatar:1,
-        coverImage:1,
-        isSubscribed:1,
-        subscribersCount:1,
-        channelsSubscribedToCount:1,
+        fullName: 1,
+        username: 1,
+        email: 1,
+        avatar: 1,
+        coverImage: 1,
+        isSubscribed: 1,
+        subscribersCount: 1,
+        channelsSubscribedToCount: 1,
       }
     }
   ])
 
   // if channel not found 
-  if(!channel?.length) {
+  if (!channel?.length) {
     throw new ApiError(404, "Channel does not exists")
   }
 
   // return response
   return res
-  .status(200)
-  .json(new  ApiResponse(200, channel[0], "User channel fetched successfully!"))
+    .status(200)
+    .json(new ApiResponse(200, channel[0], "User channel fetched successfully!"))
+})
+
+
+
+
+export const getWatchHistory = asyncHandler(async (req, res) => {
+
+  // write aggregation
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user?._id)
+      },
+
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from:"users",
+              localField:"owner",
+              foreignField:"_id",
+              as:"owner",
+              pipeline:[
+                {
+                  $project: {
+                    fullName:1,
+                    username:1,
+                    avatar:1,
+                    coverImage:1,
+                    
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+  ])
 })
