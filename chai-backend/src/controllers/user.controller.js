@@ -325,8 +325,6 @@ export const updateUserAvatar = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Avatar updated successfully!"))
 })
 
-
-
 export const updateUserCoverImg = asyncHandler(async (req, res) => {
   const coverImgLocalPath = req.file?.path
 
@@ -353,8 +351,6 @@ export const updateUserCoverImg = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "Cover Image update successfully!"))
 })
-
-
 
 export const getUserChannelProfile = asyncHandler(async (req, res) => {
 
@@ -443,9 +439,6 @@ export const getUserChannelProfile = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, channel[0], "User channel fetched successfully!"))
 })
 
-
-
-
 export const getWatchHistory = asyncHandler(async (req, res) => {
 
   // write aggregation
@@ -465,25 +458,35 @@ export const getWatchHistory = asyncHandler(async (req, res) => {
         pipeline: [
           {
             $lookup: {
-              from:"users",
-              localField:"owner",
-              foreignField:"_id",
-              as:"owner",
-              pipeline:[
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
                 {
                   $project: {
-                    fullName:1,
-                    username:1,
-                    avatar:1,
-                    coverImage:1,
-                    
+                    fullName: 1,
+                    username: 1,
+                    avatar: 1,
+                    coverImage: 1,
                   }
                 }
               ]
+            },
+            $addFields: {
+              owner: {
+                $first: "$owner"
+              }
             }
           }
         ]
       }
     },
   ])
+
+
+  // return response 
+  return res
+  .status(200)
+  .json(new ApiResponse(200, user[0].watchHistory, "Watch history fetched successfully!"))
 })
